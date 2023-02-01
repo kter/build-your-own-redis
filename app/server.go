@@ -1,17 +1,43 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"net"
 	"os"
+	"strings"
 )
 
-func replyResponseconn(conn net.Conn) {
-	str := "Hello, net pkg!"
-	data := []byte(str)
+func reply(conn net.Conn, replyString string) {
+	data := []byte(replyString)
 	_, err := conn.Write(data)
 	if err != nil {
 		fmt.Println("cannot write", err)
+	}
+}
+
+func chop(s string) string {
+	s = strings.TrimRight(s, "\n")
+	if strings.HasSuffix(s, "\r") {
+		s = strings.TrimRight(s, "\r")
+	}
+
+	return s
+}
+func processUndefinedCommand(command string) (string, error) {
+	return "", errors.New("Undefined Command: " + command)
+}
+
+func processPingCommand() (string, error) {
+	return "+PONG\r\n", nil
+}
+
+func processCommand(command string) (string, error) {
+	switch chop(command) {
+	case "PING":
+		return processPingCommand()
+	default:
+		return processUndefinedCommand(command)
 	}
 }
 
@@ -41,8 +67,14 @@ func main() {
 			c := make(chan string)
 			go getRequestString(conn, c)
 			receivedCommand := <-c
-
 			fmt.Println(receivedCommand)
+
+			replyString, err := processCommand(receivedCommand)
+			if err != nil {
+				replyString = "Error accepting connection: " + err.Error()
+			}
+
+			reply(conn, replyString)
 		}
 	}
 }
