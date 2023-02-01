@@ -33,6 +33,7 @@ func processPingCommand() (string, error) {
 }
 
 func processCommand(command string) (string, error) {
+	fmt.Println("DEBUG:" + strings.ToUpper(chop(command)))
 	switch strings.ToUpper(chop(command)) {
 	case "PING":
 		return processPingCommand()
