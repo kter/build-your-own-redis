@@ -33,7 +33,7 @@ func processPingCommand() (string, error) {
 }
 
 func processCommand(command string) (string, error) {
-	switch chop(command) {
+	switch strings.ToUpper(chop(command)) {
 	case "PING":
 		return processPingCommand()
 	default:
