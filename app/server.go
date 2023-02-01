@@ -72,6 +72,7 @@ func main() {
 			replyString, err := processCommand(receivedCommand)
 			if err != nil {
 				replyString = "Error accepting connection: " + err.Error()
+				continue
 			}
 
 			reply(conn, replyString)
