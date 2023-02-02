@@ -38,6 +38,7 @@ func processCommand(command string) (string, error) {
 	case "PING":
 		return processPingCommand()
 	default:
+		return processPingCommand()
 		return processUndefinedCommand(command)
 	}
 }
