@@ -78,9 +78,7 @@ func main() {
 			}
 
 			reply(conn, replyString)
-			break
 		}
 		conn.Close()
-		break
 	}
 }
