@@ -49,6 +49,23 @@ func getRequestString(conn net.Conn, c chan string) {
 	c <- string(data[:count])
 }
 
+func handleConnect(conn net.Conn) {
+	for {
+		c := make(chan string)
+		go getRequestString(conn, c)
+		receivedCommand := <-c
+		fmt.Println(receivedCommand)
+
+		replyString, err := processCommand(receivedCommand)
+		if err != nil {
+			replyString = "Error accepting connection: " + err.Error()
+			continue
+		}
+
+		reply(conn, replyString)
+	}
+}
+
 func main() {
 	// You can use print statements as follows for debugging, they'll be visible when running tests.
 	fmt.Println("Logs from your program will appear here!")
@@ -65,20 +82,6 @@ func main() {
 			fmt.Println("Error accepting connection: ", err.Error())
 			os.Exit(1)
 		}
-		for {
-			c := make(chan string)
-			go getRequestString(conn, c)
-			receivedCommand := <-c
-			fmt.Println(receivedCommand)
-
-			replyString, err := processCommand(receivedCommand)
-			if err != nil {
-				replyString = "Error accepting connection: " + err.Error()
-				continue
-			}
-
-			reply(conn, replyString)
-		}
-		conn.Close()
+		go handleConnect(conn)
 	}
 }
